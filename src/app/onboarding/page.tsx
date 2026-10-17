@@ -13,7 +13,17 @@ import {
 import { AcademicGroup, EduLevel } from '@/types/koutuhol';
 import { getGuestStore, saveGuestStore } from '@/lib/guest/storage';
 import { createClient } from '@/lib/supabase/client';
-import { Clock, Plus, Trash2, CheckCircle2, Play, LogOut, AlertCircle } from 'lucide-react';
+import {
+  Clock,
+  Plus,
+  Trash2,
+  CheckCircle2,
+  Play,
+  LogOut,
+  AlertCircle,
+  LayoutDashboard,
+  ShieldCheck,
+} from 'lucide-react';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -139,21 +149,44 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-dvh bg-slate-950 text-slate-100 pb-28">
-      <header className="sticky top-0 z-20 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 px-4 py-3.5">
-        <div className="max-w-3xl mx-auto flex items-center justify-between">
-          <div>
-            <span className="font-bold text-lg text-white">কৌতূহল</span>
-            <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-slate-800 text-emerald-400">
-              {userId ? 'Registered Account' : 'Guest Mode'}
+      {/* Aligned Top Navbar */}
+      <header className="sticky top-0 z-20 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 py-3">
+        <div className="max-w-3xl mx-auto flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="font-bold text-lg text-white tracking-tight">কৌতূহল</span>
+            <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-emerald-400">
+              {userId ? 'Registered' : 'Guest Mode'}
             </span>
           </div>
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="text-xs text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer"
-          >
-            <LogOut className="w-3.5 h-3.5" /> {userId ? 'Sign Out' : 'Exit Guest'}
-          </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => router.push('/dashboard')}
+              className="h-8 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-medium inline-flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <LayoutDashboard className="w-3.5 h-3.5 text-amber-400" />
+              <span>Dashboard</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push('/admin')}
+              className="h-8 px-3 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-medium inline-flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Admin</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="h-8 px-3 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-300 text-xs font-medium inline-flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>{userId ? 'Sign Out' : 'Exit'}</span>
+            </button>
+          </div>
         </div>
       </header>
 
