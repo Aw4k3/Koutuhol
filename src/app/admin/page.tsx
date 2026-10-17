@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 import MathText from '@/components/MathText';
-import { Upload, CheckCircle2, AlertCircle, ArrowLeft, Eye } from 'lucide-react';
+import { Upload, CheckCircle2, AlertCircle, ArrowLeft, Eye, Loader2 } from 'lucide-react';
 
 const SAMPLE_JSON = `[
   {
@@ -27,10 +28,42 @@ const SAMPLE_JSON = `[
 
 export default function AdminPage() {
   const router = useRouter();
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
   const [jsonInput, setJsonInput] = useState(SAMPLE_JSON);
   const [previewItems, setPreviewItems] = useState<Array<Record<string, unknown>>>([]);
   const [status, setStatus] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    if (!supabase) {
+      router.replace('/onboarding');
+      return;
+    }
+
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
+      if (!user) {
+        router.replace('/onboarding');
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      if (profile?.role !== 'admin') {
+        router.replace('/onboarding');
+        return;
+      }
+
+      setIsAuthorized(true);
+      setCheckingAuth(false);
+    });
+  }, [router]);
 
   const handlePreview = () => {
     setStatus(null);
@@ -72,6 +105,14 @@ export default function AdminPage() {
     }
   };
 
+  if (checkingAuth || !isAuthorized) {
+    return (
+      <div className="min-h-dvh bg-slate-950 flex items-center justify-center text-slate-400 text-xs gap-2">
+        <Loader2 className="w-4 h-4 animate-spin text-emerald-400" /> Verifying admin access...
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-dvh bg-slate-950 text-slate-100 py-8 px-4">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -84,10 +125,10 @@ export default function AdminPage() {
           </div>
           <button
             type="button"
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push('/onboarding')}
             className="px-3.5 py-2 rounded-xl bg-slate-800 text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
           >
-            <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
+            <ArrowLeft className="w-3.5 h-3.5" /> Back
           </button>
         </header>
 

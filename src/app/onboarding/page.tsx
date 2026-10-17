@@ -13,6 +13,7 @@ import {
 import { AcademicGroup, EduLevel } from '@/types/koutuhol';
 import { getGuestStore, saveGuestStore } from '@/lib/guest/storage';
 import { createClient } from '@/lib/supabase/client';
+import InstallAppBanner from '@/components/InstallAppBanner';
 import {
   Clock,
   Plus,
@@ -29,6 +30,7 @@ export default function OnboardingPage() {
   const router = useRouter();
 
   const [userId, setUserId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [level, setLevel] = useState<EduLevel | null>(null);
   const [group, setGroup] = useState<AcademicGroup>('none');
   const [subjectSlugs, setSubjectSlugs] = useState<string[]>([]);
@@ -49,8 +51,18 @@ export default function OnboardingPage() {
 
     const supabase = createClient();
     if (supabase) {
-      supabase.auth.getUser().then(({ data: { user } }) => {
-        if (user) setUserId(user.id);
+      supabase.auth.getUser().then(async ({ data: { user } }) => {
+        if (user) {
+          setUserId(user.id);
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+          if (profile?.role === 'admin') {
+            setIsAdmin(true);
+          }
+        }
       });
     }
   }, []);
@@ -169,14 +181,16 @@ export default function OnboardingPage() {
               <span>Dashboard</span>
             </button>
 
-            <button
-              type="button"
-              onClick={() => router.push('/admin')}
-              className="h-8 px-3 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-medium inline-flex items-center gap-1.5 transition cursor-pointer"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Admin</span>
-            </button>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => router.push('/admin')}
+                className="h-8 px-3 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-medium inline-flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Admin</span>
+              </button>
+            )}
 
             <button
               type="button"
@@ -191,6 +205,9 @@ export default function OnboardingPage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 pt-6 space-y-8">
+        {/* Mobile PWA Add to Home Screen Banner */}
+        <InstallAppBanner />
+
         <section className="space-y-3">
           <h2 className="text-lg font-semibold text-white">
             1. Select Your Education Level (শ্রেণি নির্বাচন করুন)
