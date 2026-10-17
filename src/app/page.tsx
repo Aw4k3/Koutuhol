@@ -1,5 +1,5 @@
 'use client';
-
+import InstallAppBanner from '@/components/InstallAppBanner';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
@@ -89,6 +89,7 @@ export default function WelcomePage() {
   return (
     <main className="min-h-dvh flex flex-col justify-between bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 px-4 py-8">
       <div className="max-w-md w-full mx-auto my-auto space-y-6">
+      <InstallAppBanner/>
         <div className="text-center space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
             <Sparkles className="w-3.5 h-3.5" /> Reel-Style MCQ Learning
